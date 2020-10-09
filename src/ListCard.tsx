@@ -68,7 +68,9 @@ const styles = StyleSheet.create<Style>({
         borderWidth: 1,
         borderColor: "green",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+        marginTop: 10,
+        marginBottom: 10
     }
 })
 const ListDetailsHoc = gestureHandlerRootHOC(({ item }: { item: IListDetails }) => {
@@ -132,14 +134,9 @@ const ListDetailsHoc = gestureHandlerRootHOC(({ item }: { item: IListDetails }) 
         </PanGestureHandler>
     );
 });
-const ListDetails = ({ item }: { item: IListDetails }) => {
-    return (
-        <ListDetailsHoc item={item} />
-    )
-};
 
 const renderDetails = ({ item }: { item: IListDetails }) => (
-    <ListDetails item={item} />
+    <ListDetailsHoc item={item} />
 );
 const ListCard: FunctionComponent<ListCardProps> = observer(({ title, cardData }) => {
     return (
