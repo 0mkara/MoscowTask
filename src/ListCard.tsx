@@ -1,4 +1,5 @@
-import React, { FunctionComponent } from 'react';
+import { observer } from 'mobx-react-lite';
+import React, { FunctionComponent, useRef, useEffect } from 'react';
 import {
     View,
     Text,
@@ -6,16 +7,27 @@ import {
     ViewStyle,
     StyleSheet,
     FlatList,
-    TouchableOpacity
+    TouchableOpacity,
+    ImageStyle,
+    Animated,
+    Easing,
+    Button
 } from "react-native";
+
+import { CardData, IListDetails } from "./types";
 
 interface ListCardProps {
     title: string;
     id: string;
+    cardData: CardData;
 }
 interface Style {
     item: ViewStyle;
     title: TextStyle;
+    listDetails: ViewStyle;
+    listTitle: TextStyle;
+    listImage: ImageStyle;
+    subtitle: TextStyle;
 }
 const styles = StyleSheet.create<Style>({
     item: {
@@ -25,57 +37,96 @@ const styles = StyleSheet.create<Style>({
         marginHorizontal: 16,
         borderWidth: 1,
         borderColor: "blue",
+        maxWidth: 350,
     },
     title: {
         fontSize: 32
     },
+    listDetails: {
+        borderColor: "red",
+        borderWidth: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    listTitle: {
+        fontWeight: "800",
+        fontSize: 32,
+        textAlign: "center"
+    },
+    listImage: {
+        height: 0,
+        resizeMode: 'stretch',
+        margin: 5
+    },
+    subtitle: {
+        fontSize: 24,
+        textAlign: "center"
+    }
 })
 
-interface ListDetailsData {
-    userId: number;
-    id: number;
-    title: string;
-    completed: boolean;
-}
+const ListDetails = ({ item }: { item: IListDetails }) => {
+    const height = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+        console.log(height);
+    }, [height]);
+    const handleView = () => {
+        console.log("Should zoom")
+        Animated.timing(height, {
+            toValue: 1,
+            duration: 1000,
+            easing: Easing.ease,
+            useNativeDriver: true
+        }).start();
+    }
+    return (
+        <TouchableOpacity style={[styles.listDetails]}>
+            <Text style={styles.listTitle}>What do you like more ?</Text>
+            <Animated.Image
+                source={{ uri: 'https://via.placeholder.com/100x150.png' }}
+                style={{
+                    height: 20,
+                    width: 20,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    resizeMode: "cover",
+                    transform: [
+                        {
+                            scaleX: height.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [1, 15]
+                            })
+                        },
+                        {
+                            scaleY: height.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [1, 100]
+                            })
+                        }
+                    ]
+                }}
+            />
+            <Button onPress={handleView} title="Zoom In" />
+            <Text style={styles.subtitle}>{item.title}</Text>
+            <Text>{item.userId}</Text>
+            <Text>{item.id}</Text>
+            <Text>{item.completed ? "True" : "False"}</Text>
+        </TouchableOpacity>
+    )
+};
 
-const DATA: ListDetailsData[] = [
-    {
-        "userId": 1,
-        "id": 1,
-        "title": "delectus aut autem",
-        "completed": false
-    },
-    {
-        "userId": 1,
-        "id": 2,
-        "title": "quis ut nam facilis et officia qui",
-        "completed": false
-    },
-    {
-        "userId": 1,
-        "id": 3,
-        "title": "fugiat veniam minus",
-        "completed": false
-    },
-];
-
-const ListDetails = ({ item }: { item: ListDetailsData }) => (
-    <TouchableOpacity>
-        <Text>{item.title}</Text>
-        <Text>{item.userId}</Text>
-        <Text>{item.id}</Text>
-        <Text>{item.completed ? "True" : "False" }</Text>
-    </TouchableOpacity>
-)
-
-export const ListCard: FunctionComponent<ListCardProps> = ({ title }) => {
-    const renderDetails = ({ item }: { item: ListDetailsData }) => (
-        <ListDetails item={item} />
-    );
+const renderDetails = ({ item }: { item: IListDetails }) => (
+    <ListDetails item={item} />
+);
+const ListCard: FunctionComponent<ListCardProps> = observer(({ title, cardData }) => {
     return (
         <View style={styles.item}>
             <Text style={styles.title}>{title}</Text>
-            <FlatList renderItem={renderDetails} keyExtractor={item => JSON.stringify(item.id)} data={DATA} />
+            {
+                cardData.tasks &&
+                <FlatList renderItem={renderDetails} keyExtractor={item => JSON.stringify(item.id)} data={cardData.tasks} />
+            }
         </View>
     )
-}
+});
+
+export default ListCard;
