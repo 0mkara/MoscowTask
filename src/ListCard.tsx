@@ -7,12 +7,13 @@ import {
     ViewStyle,
     StyleSheet,
     FlatList,
-    TouchableOpacity,
     ImageStyle,
     Animated,
     Easing,
     Button
 } from "react-native";
+import { gestureHandlerRootHOC, PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
+
 
 import { CardData, IListDetails } from "./types";
 
@@ -28,6 +29,7 @@ interface Style {
     listTitle: TextStyle;
     listImage: ImageStyle;
     subtitle: TextStyle;
+    gestureView: ViewStyle;
 }
 const styles = StyleSheet.create<Style>({
     item: {
@@ -61,11 +63,17 @@ const styles = StyleSheet.create<Style>({
     subtitle: {
         fontSize: 24,
         textAlign: "center"
+    },
+    gestureView: {
+        borderWidth: 1,
+        borderColor: "green",
+        justifyContent: "center",
+        alignItems: "center"
     }
 })
-
-const ListDetails = ({ item }: { item: IListDetails }) => {
+const ListDetailsHoc = gestureHandlerRootHOC(({ item }: { item: IListDetails }) => {
     const height = useRef(new Animated.Value(0)).current;
+    const moveUp = useRef(new Animated.Value(0)).current;
     useEffect(() => {
         console.log(height);
     }, [height]);
@@ -78,39 +86,55 @@ const ListDetails = ({ item }: { item: IListDetails }) => {
             useNativeDriver: true
         }).start();
     }
+    const handleGesture = (e: PanGestureHandlerGestureEvent) => {
+        console.log(e);
+        Animated.timing(moveUp, {
+            toValue: 1,
+            duration: 100,
+            easing: Easing.ease,
+            useNativeDriver: true
+        }).start();
+    }
     return (
-        <TouchableOpacity style={[styles.listDetails]}>
-            <Text style={styles.listTitle}>What do you like more ?</Text>
-            <Animated.Image
-                source={{ uri: 'https://via.placeholder.com/100x150.png' }}
-                style={{
-                    height: 20,
-                    width: 20,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    resizeMode: "cover",
-                    transform: [
-                        {
-                            scaleX: height.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: [1, 15]
-                            })
-                        },
-                        {
-                            scaleY: height.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: [1, 100]
-                            })
-                        }
-                    ]
-                }}
-            />
-            <Button onPress={handleView} title="Zoom In" />
-            <Text style={styles.subtitle}>{item.title}</Text>
-            <Text>{item.userId}</Text>
-            <Text>{item.id}</Text>
-            <Text>{item.completed ? "True" : "False"}</Text>
-        </TouchableOpacity>
+        <PanGestureHandler onGestureEvent={handleGesture} failOffsetY={[-10, 10]}>
+            <Animated.View style={[styles.gestureView, { transform: [{ translateY: moveUp.interpolate({ inputRange: [0, 1], outputRange: [0, 100] }) }] }]}>
+                <Text style={styles.listTitle}>What do you like more ?</Text>
+                <Animated.Image
+                    source={{ uri: 'https://via.placeholder.com/100x150.png' }}
+                    style={{
+                        height: 20,
+                        width: 20,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        resizeMode: "cover",
+                        transform: [
+                            {
+                                scaleX: height.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [1, 15]
+                                })
+                            },
+                            {
+                                scaleY: height.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [1, 100]
+                                })
+                            }
+                        ]
+                    }}
+                />
+                <Button onPress={handleView} title="Zoom In" />
+                <Text style={styles.subtitle}>{item.title}</Text>
+                <Text>{item.userId}</Text>
+                <Text>{item.id}</Text>
+                <Text>{item.completed ? "True" : "False"}</Text>
+            </Animated.View>
+        </PanGestureHandler>
+    );
+});
+const ListDetails = ({ item }: { item: IListDetails }) => {
+    return (
+        <ListDetailsHoc item={item} />
     )
 };
 
