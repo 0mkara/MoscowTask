@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import React, { FunctionComponent, useRef, useEffect } from 'react';
+import React, { FunctionComponent, useRef, useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -76,17 +76,27 @@ const styles = StyleSheet.create<Style>({
 const ListDetailsHoc = gestureHandlerRootHOC(({ item }: { item: IListDetails }) => {
     const height = useRef(new Animated.Value(0)).current;
     const moveUp = useRef(new Animated.Value(0)).current;
+    const [zoom, setZoom] = useState(false);
     useEffect(() => {
         console.log(height);
     }, [height]);
     const handleView = () => {
-        console.log("Should zoom")
         Animated.timing(height, {
             toValue: 1,
             duration: 1000,
             easing: Easing.ease,
             useNativeDriver: true
         }).start();
+        setZoom(true);
+    }
+    const handleZoomOut = () => {
+        Animated.timing(height, {
+            toValue: 0,
+            duration: 1000,
+            easing: Easing.ease,
+            useNativeDriver: true
+        }).start();
+        setZoom(false);
     }
     const handleGesture = (e: PanGestureHandlerGestureEvent) => {
         console.log(e);
@@ -125,7 +135,14 @@ const ListDetailsHoc = gestureHandlerRootHOC(({ item }: { item: IListDetails }) 
                         ]
                     }}
                 />
-                <Button onPress={handleView} title="Zoom In" />
+                {
+                    !zoom &&
+                    <Button onPress={handleView} title="Zoom In" />
+                }
+                {
+                    zoom &&
+                    <Button onPress={handleZoomOut} title="Zoom Out" />
+                }
                 <Text style={styles.subtitle}>{item.title}</Text>
                 <Text>{item.userId}</Text>
                 <Text>{item.id}</Text>
