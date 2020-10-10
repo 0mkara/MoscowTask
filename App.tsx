@@ -20,6 +20,8 @@ import {
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
 import { useLocalObservable, Observer } from 'mobx-react-lite';
+import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+
 import ListCard from "./src/ListCard";
 import { CardData, ICardData, IListDetails } from './src/types';
 
@@ -58,35 +60,29 @@ const App = () => {
         setData(d);
       })
   }, []);
-  useEffect(() => {
-    console.log(data);
-  }, [data])
 
-  const renderItem = ({ item }: { item: IListItem  }) => {
-    console.log(item);
-    
-    const { cardInfo, tasks } = item;
-    return (
-      <ListCard title={cardInfo.title} id={cardInfo.id} tasks={tasks} />
-    )
-  };
+  const renderItem = ({ item: { cardInfo, tasks } }: { item: IListItem }) => (
+    <ListCard title={cardInfo.title} id={cardInfo.id} tasks={tasks} />
+  );
   return (
     <Observer>
       {
         () => (
           <>
             <StatusBar barStyle="dark-content" />
-            <SafeAreaView>
-              {
-                data.length > 0 &&
-                <FlatList
-                  horizontal={true}
-                  data={data}
-                  renderItem={renderItem}
-                  keyExtractor={item => item.cardInfo.id}
-                />
-              }
-            </SafeAreaView>
+            <PaperProvider>
+              <SafeAreaView>
+                {
+                  data.length > 0 &&
+                  <FlatList
+                    horizontal={false}
+                    data={data}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.cardInfo.id}
+                  />
+                }
+              </SafeAreaView>
+            </PaperProvider>
           </>
         )
       }

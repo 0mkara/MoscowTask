@@ -15,7 +15,6 @@ export type ListActionType = {
     setError: (error: Error) => Promise<void>;
 }
 
-export interface IListDetails { }
 export class Tasks {
     public data: IListDetails[];
     constructor() {

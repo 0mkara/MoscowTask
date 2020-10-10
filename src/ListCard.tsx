@@ -1,21 +1,18 @@
 import { observer, useLocalObservable } from 'mobx-react-lite';
 import React, { FunctionComponent, useRef, useEffect, useState } from 'react';
 import {
-    View,
     Text,
     TextStyle,
     ViewStyle,
     StyleSheet,
     FlatList,
     ImageStyle,
-    Animated,
-    Easing,
-    Button
 } from "react-native";
 import { gestureHandlerRootHOC, PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
+import { Avatar, Button, Card, Title, Paragraph, List } from 'react-native-paper';
 
 
-import { CardData, IListDetails } from "./types";
+import { IListDetails } from "./types";
 
 interface ListCardProps {
     title: string;
@@ -39,16 +36,27 @@ const styles = StyleSheet.create<Style>({
         marginHorizontal: 16,
         borderWidth: 1,
         borderColor: "blue",
-        maxWidth: 350,
+        justifyContent: "center",
+        alignItems: "center"
     },
     title: {
         fontSize: 32
     },
     listDetails: {
-        borderColor: "red",
-        borderWidth: 1,
+        // borderColor: "red",
+        // borderWidth: 1,
         justifyContent: "center",
         alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.30,
+        shadowRadius: 4.65,
+
+        elevation: 8,
+        margin: 10,
     },
     listTitle: {
         fontWeight: "800",
@@ -69,101 +77,37 @@ const styles = StyleSheet.create<Style>({
         borderColor: "green",
         justifyContent: "center",
         alignItems: "center",
-        marginTop: 10,
-        marginBottom: 10
+        marginLeft: 5,
+        marginRight: 5,
+        maxWidth: 320
     }
 })
-const ListDetailsHoc = gestureHandlerRootHOC(({ item }: { item: IListDetails }) => {
-    const height = useRef(new Animated.Value(0)).current;
-    const moveUp = useRef(new Animated.Value(0)).current;
-    const [zoom, setZoom] = useState(false);
-    useEffect(() => {
-        console.log(height);
-    }, [height]);
-    const handleView = () => {
-        Animated.timing(height, {
-            toValue: 1,
-            duration: 1000,
-            easing: Easing.ease,
-            useNativeDriver: true
-        }).start();
-        setZoom(true);
-    }
-    const handleZoomOut = () => {
-        Animated.timing(height, {
-            toValue: 0,
-            duration: 1000,
-            easing: Easing.ease,
-            useNativeDriver: true
-        }).start();
-        setZoom(false);
-    }
-    const handleGesture = (e: PanGestureHandlerGestureEvent) => {
-        console.log(e);
-        Animated.timing(moveUp, {
-            toValue: 1,
-            duration: 100,
-            easing: Easing.ease,
-            useNativeDriver: true
-        }).start();
-    }
-    return (
-        <PanGestureHandler onGestureEvent={handleGesture} failOffsetY={[-10, 10]}>
-            <Animated.View style={[styles.gestureView]}>
-                <Text style={styles.listTitle}>What do you like more ?</Text>
-                <Animated.Image
-                    source={{ uri: 'https://via.placeholder.com/100x150.png' }}
-                    style={{
-                        height: 20,
-                        width: 20,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        resizeMode: "cover",
-                        transform: [
-                            {
-                                scaleX: height.interpolate({
-                                    inputRange: [0, 1],
-                                    outputRange: [1, 15]
-                                })
-                            },
-                            {
-                                scaleY: height.interpolate({
-                                    inputRange: [0, 1],
-                                    outputRange: [1, 100]
-                                })
-                            }
-                        ]
-                    }}
-                />
-                {
-                    !zoom &&
-                    <Button onPress={handleView} title="Zoom In" />
-                }
-                {
-                    zoom &&
-                    <Button onPress={handleZoomOut} title="Zoom Out" />
-                }
-                <Text style={styles.subtitle}>{item.title}</Text>
-                <Text>{item.userId}</Text>
-                <Text>{item.id}</Text>
-                <Text>{item.completed ? "True" : "False"}</Text>
-            </Animated.View>
-        </PanGestureHandler>
-    );
-});
+
+const ListItem = ({ item }: { item: IListDetails }) => (
+    <Card style={styles.listDetails}>
+        <Card.Title title={`Card # ${item.id}`} />
+        <Card.Content>
+            <Paragraph>
+                <Text>{item.title}</Text>
+            </Paragraph>
+        </Card.Content>
+    </Card>
+)
 
 const renderDetails = ({ item }: { item: IListDetails }) => (
-    <ListDetailsHoc item={item} />
+    <ListItem item={item} />
 );
 const ListCard: FunctionComponent<ListCardProps> = observer(({ title, tasks }) => {
     return (
-        <View style={styles.item}>
-            <Text style={styles.title}>{title}</Text>
-            {
-                tasks &&
-                <FlatList renderItem={renderDetails} keyExtractor={item => JSON.stringify(item.id)} data={tasks} />
-            }
-        </View>
+        <Card>
+            <Card.Title title={title} />
+            <Card.Content style={{padding: 10}}>
+                {
+                    tasks &&
+                    <FlatList horizontal={true} renderItem={renderDetails} keyExtractor={item => JSON.stringify(item.id)} data={tasks} />
+                }
+            </Card.Content>
+        </Card>
     )
 });
 
