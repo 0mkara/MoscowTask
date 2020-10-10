@@ -1,5 +1,5 @@
-import { observer, useLocalObservable } from 'mobx-react-lite';
-import React, { FunctionComponent, useRef, useEffect, useState } from 'react';
+import { observer } from 'mobx-react-lite';
+import React, { FunctionComponent } from 'react';
 import {
     Text,
     TextStyle,
@@ -8,10 +8,7 @@ import {
     FlatList,
     ImageStyle,
 } from "react-native";
-import { gestureHandlerRootHOC, PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
-import { Avatar, Button, Card, Title, Paragraph, List } from 'react-native-paper';
-
-
+import { Card, Paragraph } from 'react-native-paper';
 import { IListDetails } from "./types";
 
 interface ListCardProps {
@@ -20,7 +17,7 @@ interface ListCardProps {
     tasks: IListDetails[];
 }
 interface Style {
-    item: ViewStyle;
+    listCard: ViewStyle;
     title: TextStyle;
     listDetails: ViewStyle;
     listTitle: TextStyle;
@@ -29,15 +26,9 @@ interface Style {
     gestureView: ViewStyle;
 }
 const styles = StyleSheet.create<Style>({
-    item: {
-        backgroundColor: '#f9c2ff',
-        padding: 20,
-        marginVertical: 8,
-        marginHorizontal: 16,
-        borderWidth: 1,
-        borderColor: "blue",
-        justifyContent: "center",
-        alignItems: "center"
+    listCard: {
+        padding: 5,
+        margin: 1
     },
     title: {
         fontSize: 32
@@ -99,7 +90,7 @@ const renderDetails = ({ item }: { item: IListDetails }) => (
 );
 const ListCard: FunctionComponent<ListCardProps> = observer(({ title, tasks }) => {
     return (
-        <Card>
+        <Card style={styles.listCard}>
             <Card.Title title={title} />
             <Card.Content style={{padding: 10}}>
                 {
