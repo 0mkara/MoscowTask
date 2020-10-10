@@ -1,4 +1,4 @@
-import { observer } from 'mobx-react-lite';
+import { observer, useLocalObservable } from 'mobx-react-lite';
 import React, { FunctionComponent, useRef, useEffect, useState } from 'react';
 import {
     View,
@@ -20,7 +20,7 @@ import { CardData, IListDetails } from "./types";
 interface ListCardProps {
     title: string;
     id: string;
-    cardData: CardData;
+    tasks: IListDetails[];
 }
 interface Style {
     item: ViewStyle;
@@ -109,7 +109,7 @@ const ListDetailsHoc = gestureHandlerRootHOC(({ item }: { item: IListDetails }) 
     }
     return (
         <PanGestureHandler onGestureEvent={handleGesture} failOffsetY={[-10, 10]}>
-            <Animated.View style={[styles.gestureView, { transform: [{ translateY: moveUp.interpolate({ inputRange: [0, 1], outputRange: [0, 100] }) }] }]}>
+            <Animated.View style={[styles.gestureView]}>
                 <Text style={styles.listTitle}>What do you like more ?</Text>
                 <Animated.Image
                     source={{ uri: 'https://via.placeholder.com/100x150.png' }}
@@ -155,13 +155,13 @@ const ListDetailsHoc = gestureHandlerRootHOC(({ item }: { item: IListDetails }) 
 const renderDetails = ({ item }: { item: IListDetails }) => (
     <ListDetailsHoc item={item} />
 );
-const ListCard: FunctionComponent<ListCardProps> = observer(({ title, cardData }) => {
+const ListCard: FunctionComponent<ListCardProps> = observer(({ title, tasks }) => {
     return (
         <View style={styles.item}>
             <Text style={styles.title}>{title}</Text>
             {
-                cardData.tasks &&
-                <FlatList renderItem={renderDetails} keyExtractor={item => JSON.stringify(item.id)} data={cardData.tasks} />
+                tasks &&
+                <FlatList renderItem={renderDetails} keyExtractor={item => JSON.stringify(item.id)} data={tasks} />
             }
         </View>
     )

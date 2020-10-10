@@ -19,38 +19,78 @@ import {
 import {
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
+import { useLocalObservable, Observer } from 'mobx-react-lite';
 import ListCard from "./src/ListCard";
-import { CardData, ICardData } from './src/types';
+import { CardData, ICardData, IListDetails } from './src/types';
 
 declare const global: { HermesInternal: null | {} };
 
+interface IListItem {
+  cardInfo: ICardData;
+  tasks: IListDetails[];
+}
+
 const App = () => {
+  const [data, setData] = useState<IListItem[]>([]);
   const [cardData] = useState(() => new CardData());
+  const tasks = useLocalObservable((): { data: IListDetails[], setData: (data: IListDetails[]) => void, getData: () => IListDetails[] } => ({
+    data: [],
+    setData(data: IListDetails[]) {
+      this.data = [...data];
+    },
+    getData(): IListDetails[] {
+      return this.data.splice(0, 25);
+    }
+  }));
+  const loadTasks = async () => {
+    const response = await fetch('https://jsonplaceholder.typicode.com/todos');
+    const data = await response.json();
+    tasks.setData(data);
+  }
 
   useEffect(() => {
-    cardData.loadTasks()
-  }, [cardData]);
+    loadTasks()
+      .then(() => {
+        const d = cardData.data.map((i): IListItem => ({
+          cardInfo: i,
+          tasks: tasks.getData()
+        }));
+        setData(d);
+      })
+  }, []);
+  useEffect(() => {
+    console.log(data);
+  }, [data])
 
-  const renderItem = ({ item }: { item: ICardData }) => {
+  const renderItem = ({ item }: { item: IListItem  }) => {
+    console.log(item);
+    
+    const { cardInfo, tasks } = item;
     return (
-      <ListCard title={item.title} id={item.id} cardData={cardData} />
+      <ListCard title={cardInfo.title} id={cardInfo.id} tasks={tasks} />
     )
   };
   return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        {
-          cardData.data &&
-          <FlatList
-            horizontal={true}
-            data={cardData.data}
-            renderItem={renderItem}
-            keyExtractor={item => item.id}
-          />
-        }
-      </SafeAreaView>
-    </>
+    <Observer>
+      {
+        () => (
+          <>
+            <StatusBar barStyle="dark-content" />
+            <SafeAreaView>
+              {
+                data.length > 0 &&
+                <FlatList
+                  horizontal={true}
+                  data={data}
+                  renderItem={renderItem}
+                  keyExtractor={item => item.cardInfo.id}
+                />
+              }
+            </SafeAreaView>
+          </>
+        )
+      }
+    </Observer>
   );
 };
 

@@ -65,12 +65,9 @@ export class CardData {
     getTasks() {
         return this.tasks.splice(0, 25);
     }
-    async loadTasks() {
-        console.log("Loading data....");
-
-        const response = await fetch('https://jsonplaceholder.typicode.com/todos');
-        const data = await response.json();
-        this.tasks = data;
-        console.log("data loaded...");
-    }
+    // async loadTasks() {
+    //     const response = await fetch('https://jsonplaceholder.typicode.com/todos');
+    //     const data = await response.json();
+    //     this.tasks = data;
+    // }
 }
