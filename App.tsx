@@ -23,7 +23,7 @@ import { useLocalObservable, Observer } from 'mobx-react-lite';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 
 import ListCard from "./src/ListCard";
-import { CardData, ICardData, IListDetails } from './src/types';
+import { ICardData, IListDetails } from './src/types';
 
 declare const global: { HermesInternal: null | {} };
 
@@ -34,7 +34,26 @@ interface IListItem {
 
 const App = () => {
   const [data, setData] = useState<IListItem[]>([]);
-  const [cardData] = useState(() => new CardData());
+  const cardData = useLocalObservable(() => ({
+    data: [
+      {
+        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+        title: 'First List',
+      },
+      {
+        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
+        title: 'Second List',
+      },
+      {
+        id: '58694a0f-3da1-471f-bd96-145571e29d72',
+        title: 'Third List',
+      },
+      {
+        id: '58694a0f-3da1-471f-bd96-145571e29d73',
+        title: 'Fourth List',
+      }
+    ]
+  }))
   const tasks = useLocalObservable((): { data: IListDetails[], setData: (data: IListDetails[]) => void, getData: () => IListDetails[] } => ({
     data: [],
     setData(data: IListDetails[]) {
