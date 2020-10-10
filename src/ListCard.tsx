@@ -72,7 +72,7 @@ const styles = StyleSheet.create<Style>({
         marginRight: 5,
         maxWidth: 320
     }
-})
+});
 
 const ListItem = ({ item }: { item: IListDetails }) => (
     <Card style={styles.listDetails}>
@@ -88,7 +88,7 @@ const ListItem = ({ item }: { item: IListDetails }) => (
 const renderDetails = ({ item }: { item: IListDetails }) => (
     <ListItem item={item} />
 );
-const ListCard: FunctionComponent<ListCardProps> = observer(({ title, tasks }) => {
+export const ListCard: FunctionComponent<ListCardProps> = observer(({ title, tasks }) => {
     return (
         <Card style={styles.listCard}>
             <Card.Title title={title} />
@@ -101,5 +101,3 @@ const ListCard: FunctionComponent<ListCardProps> = observer(({ title, tasks }) =
         </Card>
     )
 });
-
-export default ListCard;
