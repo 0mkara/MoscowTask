@@ -8,11 +8,9 @@
  * @format
  */
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
-  FlatList,
   StatusBar,
 } from 'react-native';
 
@@ -35,7 +33,7 @@ const App = () => {
     <>
       <StatusBar barStyle="dark-content" />
       <NavigationContainer>
-        <Drawer.Navigator initialRouteName="Home">
+        <Drawer.Navigator initialRouteName="List Task">
           <Drawer.Screen name="List Task" component={HomeScreen} />
           <Drawer.Screen name="Animation Task" component={ZoomScreen} />
           <Drawer.Screen name="Gesture Task" component={GestureScreen} />

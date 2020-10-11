@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
     SafeAreaView,
-    StyleSheet,
     FlatList,
 } from 'react-native';
 import { useLocalObservable, Observer } from 'mobx-react-lite';
