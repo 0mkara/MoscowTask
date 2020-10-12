@@ -5,15 +5,22 @@ import {
     StyleSheet,
     ViewStyle,
     TextStyle,
-    ImageStyle
+    ImageStyle,
+    Dimensions
 } from "react-native";
-import { Button, Headline } from 'react-native-paper';
+// import Animated, { Easing } from 'react-native-reanimated'
+import { Button, Headline, Caption } from 'react-native-paper';
 
 interface Style {
     listImage: ImageStyle;
     gestureView: ViewStyle;
     listTitle: TextStyle;
+    caption: TextStyle;
+    headline: TextStyle;
 }
+
+const width = Dimensions.get("window").width;
+const height = Dimensions.get("window").height;
 
 const styles = StyleSheet.create<Style>({
     listImage: {
@@ -22,10 +29,13 @@ const styles = StyleSheet.create<Style>({
         margin: 5
     },
     gestureView: {
-        // borderWidth: 1,
-        // borderColor: "green",
+        width: width - 2,
+        height: height - 50,
+        borderWidth: 1,
+        borderColor: "transparent",
         margin: 2,
         padding: 10,
+        display: "flex",
         justifyContent: "center",
         alignItems: "center",
         shadowColor: "#000",
@@ -42,6 +52,12 @@ const styles = StyleSheet.create<Style>({
         fontSize: 32,
         textAlign: "center"
     },
+    headline: {
+        fontSize: 22,
+    },
+    caption: {
+        fontSize: 16,
+    }
 });
 
 export const ZoomScreen = () => {
@@ -50,7 +66,7 @@ export const ZoomScreen = () => {
     useEffect(() => {
         console.log(height);
     }, [height]);
-    const handleView = () => {
+    const handlePreview = () => {
         Animated.timing(height, {
             toValue: 1,
             duration: 1000,
@@ -69,13 +85,28 @@ export const ZoomScreen = () => {
         setZoom(false);
     }
     return (
-        <Animated.View style={[styles.gestureView]}>
-            <Headline>What do you like more ?</Headline>
-            <Animated.Image
-                source={{ uri: 'https://via.placeholder.com/100x150.png' }}
+        <Animated.View style={styles.gestureView}>
+            <Animated.View
                 style={{
-                    height: 350,
-                    width: 150,
+                    top: 200,
+                    transform: [
+                        {
+                            translateY: height.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [0, -200]
+                            })
+                        }
+                    ]
+                }}>
+                <Headline>What do you like more ?</Headline>
+            </Animated.View>
+            <Animated.Image
+                source={{ uri: 'https://picsum.photos/300/450' }}
+                style={{
+                    // borderColor: "red",
+                    // borderWidth: 1,
+                    width: 300,
+                    height: 450,
                     justifyContent: "center",
                     alignItems: "center",
                     resizeMode: "cover",
@@ -83,29 +114,43 @@ export const ZoomScreen = () => {
                         {
                             scaleX: height.interpolate({
                                 inputRange: [0, 1],
-                                outputRange: [1, 15]
+                                outputRange: [0, 1]
                             })
                         },
                         {
                             scaleY: height.interpolate({
                                 inputRange: [0, 1],
-                                outputRange: [1, 100]
+                                outputRange: [0, 1]
                             })
                         }
                     ]
                 }}
             />
+            <Animated.View
+                style={{
+                    bottom: 200,
+                    transform: [
+                        {
+                            translateY: height.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [0, 200]
+                            })
+                        }
+                    ]
+                }}>
+                <Caption style={styles.caption}>Answer the question by choosing an option.</Caption>
+            </Animated.View>
             {
                 !zoom &&
-                <Button mode="contained" color="#252525" onPress={handleView}>
-                    Zoom In
-                    </Button>
+                <Button mode="contained" color="#252525" onPress={handlePreview}>
+                    Preview
+                </Button>
             }
             {
                 zoom &&
                 <Button mode="contained" color="#252525" onPress={handleZoomOut}>
-                    Zoom Out
-                    </Button>
+                    Hide
+                </Button>
             }
         </Animated.View>
     );

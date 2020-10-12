@@ -33,7 +33,7 @@ const App = () => {
     <>
       <StatusBar barStyle="dark-content" />
       <NavigationContainer>
-        <Drawer.Navigator initialRouteName="List Task">
+        <Drawer.Navigator initialRouteName="Animation Task">
           <Drawer.Screen name="List Task" component={HomeScreen} />
           <Drawer.Screen name="Animation Task" component={ZoomScreen} />
           <Drawer.Screen name="Gesture Task" component={GestureScreen} />
