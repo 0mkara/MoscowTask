@@ -3,13 +3,15 @@ import { Animated, Easing, StyleSheet, View, ViewStyle, ImageStyle, Dimensions }
 import { gestureHandlerRootHOC, PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 import { Surface, Card, Divider } from 'react-native-paper';
 
-// const { height } = Dimensions.get("window");
 interface Style {
     actionContainer: ViewStyle;
     gestureView: ViewStyle;
     coverStyle: ImageStyle;
     dividerStyle: ViewStyle;
 }
+
+const { height, width } = Dimensions.get("window");
+
 const styles = StyleSheet.create<Style>({
     actionContainer: {
         // borderWidth: 1,
@@ -27,8 +29,8 @@ const styles = StyleSheet.create<Style>({
     },
     dividerStyle: {
         backgroundColor: "gray",
-        height: 20,
-        width: 200,
+        height: 30,
+        width: 250,
         alignItems: 'center',
         justifyContent: 'center',
         shadowColor: "#000",
@@ -48,31 +50,52 @@ const GesturedDivider = () => (
 )
 const GestureHoc = gestureHandlerRootHOC(() => {
     const modeDown = useRef(new Animated.Value(0)).current;
-    const [y, setY] = useState(0);
+    const [zIndex, setzIndex] = useState(0);
+    const mindist: number = 20;
     const handleGesture = (e: PanGestureHandlerGestureEvent) => {
-        setY(e.nativeEvent.translationY);
+        const { translationY, velocityY } = e.nativeEvent;
         Animated.timing(modeDown, {
-            toValue: y < 0 ? 0 : y > 10 ? 10 : y,
-            duration: 50,
+            toValue: translationY,
+            duration: velocityY/100,
             easing: Easing.ease,
             useNativeDriver: true
         }).start();
     }
-
+    const handleStateChange = (e: PanGestureHandlerGestureEvent) => {
+        const { translationY, absoluteY, velocityY } = e.nativeEvent;
+        Animated.timing(modeDown, {
+            toValue: 0,
+            duration: 500,
+            easing: Easing.ease,
+            useNativeDriver: true
+        }).start(() => {
+            if (absoluteY > 550) {
+                setzIndex(zIndex > 0 ? 0 : 10);
+            }
+        });
+    }
     return (
-        <Animated.View style={[styles.gestureView,{ transform: [{ translateY: modeDown.interpolate({ inputRange: [0, 10], outputRange: [0, 200] }) }] }]}>
-            <Card>
-                <Card.Title title="Card Title" subtitle="Card Subtitle" />
-                <Card.Cover style={styles.coverStyle} source={{ uri: 'https://picsum.photos/200/300' }} />
-                <PanGestureHandler onGestureEvent={handleGesture}>
-                    <View>
-                        <Card.Actions style={styles.actionContainer}>
-                            <GesturedDivider />
-                        </Card.Actions>
-                    </View>
-                </PanGestureHandler>
-            </Card>
-        </Animated.View>
+        <View>
+            <View>
+                <Card>
+                    <Card.Title title="Card Title" subtitle="Card Subtitle" />
+                    <Card.Cover style={styles.coverStyle} source={{ uri: 'https://via.placeholder.com/200x300' }} />
+                </Card>
+            </View>
+            <Animated.View style={[styles.gestureView, { transform: [{ translateY: modeDown.interpolate({ inputRange: [0, 200], outputRange: [-375, 0], extrapolate: "clamp" }) }], elevation: zIndex }]}>
+                <Card>
+                    <Card.Title title="Card Title" subtitle="Card Subtitle" />
+                    <Card.Cover style={styles.coverStyle} source={{ uri: 'https://picsum.photos/200/300' }} />
+                    <PanGestureHandler minDist={mindist} onGestureEvent={handleGesture} onHandlerStateChange={handleStateChange}>
+                        <View>
+                            <Card.Actions style={styles.actionContainer}>
+                                <GesturedDivider />
+                            </Card.Actions>
+                        </View>
+                    </PanGestureHandler>
+                </Card>
+            </Animated.View>
+        </View>
     )
 })
 

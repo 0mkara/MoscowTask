@@ -19,8 +19,7 @@ interface Style {
     headline: TextStyle;
 }
 
-const width = Dimensions.get("window").width;
-const height = Dimensions.get("window").height;
+const { height, width } = Dimensions.get("window");
 
 const styles = StyleSheet.create<Style>({
     listImage: {
